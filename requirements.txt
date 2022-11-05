@@ -1,0 +1,9 @@
+torch
+torchvision
+ipykernel
+pillow
+laspy
+matplotlib
+ipympl
+# numpy
+transforms3d
