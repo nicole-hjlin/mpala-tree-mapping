@@ -7,3 +7,4 @@ matplotlib
 ipympl
 # numpy
 transforms3d
+pandas
