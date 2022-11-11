@@ -8,3 +8,6 @@ ipympl
 # numpy
 transforms3d
 pandas
+geopandas
+tqdm
+wandb

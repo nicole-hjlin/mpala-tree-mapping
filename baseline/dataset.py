@@ -5,18 +5,18 @@ import laspy
 BASE_DIR = path.dirname(path.abspath(__file__))
 
 class MpalaTreeLiDAR(Dataset):
-    def __init__(self, data_path, ids, transform=None):
+    def __init__(self, data_path, ids, labels, classes, transform=None):
         super().__init__()
         self.transform = transform
         self.n = len(ids)
         self.x = []
         self.x_trans = {}
-        self.y = []
+        self.y = labels
+        self.classes = classes
         
         for id in ids:
             f = path.join(data_path, f'treeID_{id}.las')
             self.x.append(laspy.read(f))
-            self.y.append(0)
 
     def __getitem__(self, i):
         if self.transform and i in self.x_trans:
