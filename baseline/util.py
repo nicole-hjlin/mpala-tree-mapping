@@ -6,7 +6,10 @@ from math import radians
 import imageio
 from typing import Tuple, List
 
-def load_fake_dataset(min_points: int) -> Tuple[List[int], List[int], List[str]]:
+def load_fake_dataset(
+    min_points: int,
+    max_points: int = 1e9,
+) -> Tuple[List[int], List[int], List[str]]:
     '''
     Returns
     ids : List[int]
@@ -18,8 +21,8 @@ def load_fake_dataset(min_points: int) -> Tuple[List[int], List[int], List[str]]
     '''
     df = pd.read_pickle('data_desc.pkl')
     print(f'Found {len(df)} trees')
-    df = df[df['num_total'] > min_points]
-    print(f'Found only {len(df)} trees with more than {min_points} points')
+    df = df[df['num_total'].between(min_points, max_points)]
+    print(f'Found only {len(df)} trees with points in range [{{min_points}}, {{max_points}}]')
     ids = df['tree_id'].to_list()
     labels = df['Label']
     classes = labels.unique().tolist()

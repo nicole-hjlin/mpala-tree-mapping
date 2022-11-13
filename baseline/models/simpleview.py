@@ -3,9 +3,11 @@ from torch import nn
 from typing import Union
 from copy import deepcopy
 import torchvision
+from .resnet18_4 import resnet18_4
 
 models = {
     'resnet18': torchvision.models.resnet18(weights='ResNet18_Weights.DEFAULT'),
+    'resnet18_4': resnet18_4(),
 }
 
 class SimpleView(nn.Module):
@@ -13,11 +15,10 @@ class SimpleView(nn.Module):
         self,
         num_views: int,
         num_classes: int,
-        backbone: Union[str, nn.Module] = 'resnet18',
+        architecture: str = 'resnet18_4',
     ):
         super().__init__()
-        if type(backbone) == str:
-            backbone = models[backbone]
+        backbone = models[architecture]
         self.backbone = deepcopy(backbone)
         
         z_dim = self.backbone.fc.in_features
