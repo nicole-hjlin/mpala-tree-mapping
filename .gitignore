@@ -133,3 +133,4 @@ wandb/
 
 # other
 MpalaForestGEO_LasClippedtoTreePolygons/
+.DS_Store
