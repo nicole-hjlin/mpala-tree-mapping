@@ -1,14 +1,15 @@
 torch
 torchvision
+torchmetrics
 ipykernel
 pillow
 laspy
 matplotlib
 ipympl
-# numpy
+numpy
 transforms3d
 pandas
 geopandas
 tqdm
 wandb
-gdown
+labels.csv

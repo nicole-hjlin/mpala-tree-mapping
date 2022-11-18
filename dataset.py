@@ -16,13 +16,16 @@ class MpalaTreeLiDAR(Dataset):
         transform: transforms.Compose,
     ):
         self.classes = labels['label'].unique().tolist()
+        print(len(self.classes))
         encode_label = lambda x: self.classes.index(x)
-        id_to_label = lambda x: labels[labels['tree_id'] == int(x)]['label'].item()
+        id_to_label = lambda x: labels[labels['tree_id'] == x]['label'].item()
         
         self.x, self.y = [], []
 
         for filepath in glob.glob(path.join(dir, "treeID_*.las")):
-            id = re.findall("treeID_(.+)\.las$", filepath)[0]
+            id = int(re.findall("treeID_(.+)\.las$", filepath)[0])
+            if id not in list(labels['tree_id']):
+                continue
             las = laspy.read(filepath)
             if len(las.classification) < min_points:
                 continue
