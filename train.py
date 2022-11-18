@@ -18,7 +18,7 @@ def train(
     project: str,
     config: Dict,
 ) -> nn.Module:
-    with wandb.init(project=project, config=config, mode='offline'):
+    with wandb.init(project=project, config=config):
         config = wandb.config
         model, loader, testloader, crit, opt = make(config)
         wandb.watch(model, crit, log='all', log_freq=10)
