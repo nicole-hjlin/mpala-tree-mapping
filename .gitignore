@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Data
-data
+# w&b
+wandb/
+
+# other
+MpalaForestGEO_LasClippedtoTreePolygons/
