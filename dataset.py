@@ -16,7 +16,6 @@ class MpalaTreeLiDAR(Dataset):
         transform: transforms.Compose,
     ):
         self.classes = labels['label'].unique().tolist()
-        print(len(self.classes))
         encode_label = lambda x: self.classes.index(x)
         id_to_label = lambda x: labels[labels['tree_id'] == x]['label'].item()
         
