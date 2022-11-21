@@ -32,7 +32,7 @@ class MpalaTreeLiDAR(Dataset):
         if top_species:
             print(f'Classifying only the top {top_species} species. The rest are considered as a single class "OTHER"')
             top_species = labels['label'].value_counts()[:top_species].index.to_list()
-            labels[~labels['label'].isin(top_species)]['label'] = 'OTHER'
+            labels.loc[~labels['label'].isin(top_species),'label'] = 'OTHER'
             print(labels['label'].value_counts())
 
         self.classes = labels['label'].unique().tolist()
