@@ -13,7 +13,7 @@ import pandas as pd
 
 wandb.login()
 
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train(
     project: str,
@@ -25,6 +25,7 @@ def train(
         print('batch size: ', config.batch_size)
         print('loader size: ', len(loader))
         print('dataset size: ', len(dataset))
+        model = torch.nn.DataParallel(model)
         model = model.to(device)
         wandb.watch(model, crit, log='all', log_freq=10)
         total_batches = len(loader) * config.epochs
@@ -75,6 +76,7 @@ def make(
         dir=config.data_dir,
         labels=pd.read_csv(config.label_path),
         min_points=config.min_points,
+        top_species=config.top_species,
         transform=transforms.Compose([
             util.ToPointCloud(),
             util.ProjectPointCloud(),

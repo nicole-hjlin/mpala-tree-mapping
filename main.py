@@ -12,6 +12,7 @@ parser.add_argument('--min_points', type=int, default=500, help='')
 parser.add_argument('--train_split', type=float, default=0.85, help='')
 parser.add_argument('--data_dir', type=str, default="./MpalaForestGEO_LasClippedtoTreePolygons", help='')
 parser.add_argument('--label_path', type=str, default="./labels.csv", help='')
+parser.add_argument('--top_species', type=int, help='')
 
 if __name__ == '__main__':
     config = parser.parse_args()
