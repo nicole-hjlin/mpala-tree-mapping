@@ -22,6 +22,10 @@ def train(
     with wandb.init(project=project, config=config):
         config = wandb.config
         model, dataset, loader, testloader, crit, opt = make(config)
+        print('batch size: ', config.batch_size)
+        print('loader size: ', len(loader))
+        print('dataset size: ', len(dataset))
+        model = model.to(device)
         wandb.watch(model, crit, log='all', log_freq=10)
         total_batches = len(loader) * config.epochs
         example_ct = 0

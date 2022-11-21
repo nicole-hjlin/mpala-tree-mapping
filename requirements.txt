@@ -12,4 +12,3 @@ pandas
 geopandas
 tqdm
 wandb
-labels.csv
