@@ -25,7 +25,7 @@ def train(
         print('batch size: ', config.batch_size)
         print('loader size: ', len(loader))
         print('dataset size: ', len(dataset))
-        model = torch.nn.DataParallel(model)
+        # model = torch.nn.DataParallel(model)
         model = model.to(device)
         wandb.watch(model, crit, log='all', log_freq=10)
         total_batches = len(loader) * config.epochs
