@@ -5,9 +5,10 @@ import argparse
 import glob
 import pandas as pd
 import re
-import util
+import utils
 import numpy as np
 from torchvision import transforms
+from torch.utils.data import DataLoader, random_split
 
 
 class MpalaTreeLiDAR(Dataset):
@@ -68,7 +69,6 @@ class MpalaTreeLiDARToPCT(Dataset):
         self,
         data: MpalaTreeLiDAR,
         num_points: int = 1024,
-        # data_path: str = None,
         partition: str = 'train',
     ):
         self.data = data
@@ -129,13 +129,13 @@ if __name__ == '__main__':
 
     if config.use_baseline:
         transform_config = transforms.Compose([
-            util.ToPointCloud(),
-            util.ProjectPointCloud(),
-            util.ExpandChannels(channels=1),
+            utils.ToPointCloud(),
+            utils.ProjectPointCloud(),
+            utils.ExpandChannels(channels=1),
         ])
     else:
         transform_config = transforms.Compose([
-            util.ToPointCloud(),
+            utils.ToPointCloud(),
         ])
 
     dataset = MpalaTreeLiDAR(

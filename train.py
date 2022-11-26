@@ -8,7 +8,7 @@ from tqdm import tqdm
 import wandb
 from simpleview.model import SimpleView
 from dataset import MpalaTreeLiDAR, MpalaTreeLiDARToPCT
-import util
+import utils
 import pandas as pd
 
 wandb.login()
@@ -78,9 +78,9 @@ def make(
             labels=pd.read_csv(config.label_path),
             min_points=config.min_points,
             transform=transforms.Compose([
-                util.ToPointCloud(),
-                util.ProjectPointCloud(),
-                util.ExpandChannels(channels=1),
+                utils.ToPointCloud(),
+                utils.ProjectPointCloud(),
+                utils.ExpandChannels(channels=1),
             ]),
         )
     else:
@@ -89,7 +89,7 @@ def make(
             labels=pd.read_csv(config.label_path),
             min_points=config.min_points,
             transform=transforms.Compose([
-                util.ToPointCloud(),
+                utils.ToPointCloud(),
             ]),
         )
         # TODO: include config for num_points, training/testing splits
