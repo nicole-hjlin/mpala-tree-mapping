@@ -7,13 +7,14 @@ from typing import Tuple, Dict
 from tqdm import tqdm
 import wandb
 from simpleview.model import SimpleView
-from dataset import MpalaTreeLiDAR
+from dataset import MpalaTreeLiDAR, MpalaTreeLiDARToPCT
 import util
 import pandas as pd
 
 wandb.login()
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
 
 def train(
     project: str,
@@ -52,7 +53,7 @@ def train(
                         'acc': acc,
                     }, step=example_ct)
                 pbar.update(1)
-            
+
             with torch.no_grad():
                 test_y_pred = torch.Tensor([]).to(device)
                 test_y = torch.Tensor([]).to(device)
@@ -72,22 +73,36 @@ def make(
     config: Dict
 ) -> Tuple[nn.Module, DataLoader, DataLoader, nn.CrossEntropyLoss, optim.SGD]:
     # Make the dataset
-    transform = transforms.Compose([
-        util.ToPointCloud(),
-        util.ProjectPointCloud(uniform_norm=config.normalize),
-    ]) if config.spicy else transforms.Compose([
-        util.ToPointCloud(),
-        util.ProjectPointCloud(uniform_norm=config.normalize),
-        util.ExpandChannels(channels=1),
-    ])
+    if config.use_baseline:
+        transform = transforms.Compose([
+            util.ToPointCloud(),
+            util.ProjectPointCloud(uniform_norm=config.normalize),
+        ]) if config.spicy else transforms.Compose([
+            util.ToPointCloud(),
+            util.ProjectPointCloud(uniform_norm=config.normalize),
+            util.ExpandChannels(channels=1),
+        ])
 
-    dataset = MpalaTreeLiDAR(
-        dir=config.data_dir,
-        labels=pd.read_csv(config.label_path),
-        min_points=config.min_points,
-        top_species=config.top_species,
-        transform=transform,
-    )
+        dataset = MpalaTreeLiDAR(
+            dir=config.data_dir,
+            labels=pd.read_csv(config.label_path),
+            min_points=config.min_points,
+            top_species=config.top_species,
+            transform=transform,
+        )
+    else:
+        dataset = MpalaTreeLiDAR(
+            dir=config.data_dir,
+            labels=pd.read_csv(config.label_path),
+            min_points=config.min_points,
+            top_species=config.top_species,
+            transform=transforms.Compose([
+                util.ToPointCloud(),
+            ]),
+        )
+        # TODO: include config for num_points, training/testing splits
+        dataset = MpalaTreeLiDARToPCT(dataset, 1024, 'train')
+        print("WARNING: Currently incomplete")
 
     # Split train and test sets
     sub_train, sub_test = random_split(
@@ -124,5 +139,5 @@ def make(
         lr=config.learning_rate,
         momentum=config.momentum,
     )
-    
+
     return model, dataset, train_loader, test_loader, criterion, optimizer
