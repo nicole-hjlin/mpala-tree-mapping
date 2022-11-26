@@ -8,7 +8,6 @@ import re
 import util
 import numpy as np
 from torchvision import transforms
-from PCT_Pytorch.data import random_point_dropout, jitter_pointcloud, translate_pointcloud
 
 
 class MpalaTreeLiDAR(Dataset):
@@ -89,13 +88,41 @@ class MpalaTreeLiDARToPCT(Dataset):
     def __getitem__(self, item):
         x, y = self.data.__getitem__(item)
         if self.partition == 'train':
-            pointcloud = random_point_dropout(pointcloud)
-            pointcloud = translate_pointcloud(pointcloud)
-            np.random.shuffle(pointcloud)
+            x = random_point_dropout(x)
+            x = translate_pointcloud(x)
+            # Dangerous action?
+            np.random.shuffle(x.numpy())
         return x[:self.num_points], y
 
     def __len__(self):
         return self.data.__len__()
+
+
+def random_point_dropout(pc, max_dropout_ratio=0.875):
+    ''' batch_pc: BxNx3 '''
+    # for b in range(batch_pc.shape[0]):
+    dropout_ratio = np.random.random()*max_dropout_ratio  # 0~0.875
+    drop_idx = np.where(np.random.random((pc.shape[0])) <= dropout_ratio)[0]
+    # print ('use random drop', len(drop_idx))
+
+    if len(drop_idx) > 0:
+        pc[drop_idx, :] = pc[0, :]  # set to the first point
+    return pc
+
+
+def translate_pointcloud(pointcloud):
+    xyz1 = np.random.uniform(low=2./3., high=3./2., size=[3])
+    xyz2 = np.random.uniform(low=-0.2, high=0.2, size=[3])
+
+    translated_pointcloud = np.add(np.multiply(
+        pointcloud, xyz1), xyz2).float()
+    return translated_pointcloud
+
+
+def jitter_pointcloud(pointcloud, sigma=0.01, clip=0.02):
+    N, C = pointcloud.shape
+    pointcloud += np.clip(sigma * np.random.randn(N, C), -1*clip, clip)
+    return pointcloud
 
 
 if __name__ == '__main__':
@@ -105,7 +132,8 @@ if __name__ == '__main__':
     parser.add_argument('--label_path', type=str,
                         default="./labels.csv", help='')
     parser.add_argument('--min_points', type=int, default=500, help='')
-    parser.add_argument('--use_baseline', type=bool, default=True, help='')
+    parser.add_argument('--num_points', type=int, default=1024, help='')
+    parser.add_argument('--use_baseline', type=bool, default=False, help='')
 
     config = parser.parse_args()
 
@@ -126,3 +154,11 @@ if __name__ == '__main__':
         min_points=config.min_points,
         transform=transform_config,
     )
+
+    if not config.use_baseline:
+        dataset = MpalaTreeLiDARToPCT(
+            dataset, num_points=config.num_points, partition='train')
+
+    for i in dataset:
+        print(i[0].shape)
+        print(i[1])
