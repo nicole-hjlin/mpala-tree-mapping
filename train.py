@@ -8,7 +8,7 @@ from tqdm import tqdm
 import wandb
 from simpleview.model import SimpleView
 from dataset import MpalaTreeLiDAR, MpalaTreeLiDARToPCT
-import util
+import utils
 import pandas as pd
 
 wandb.login()
@@ -75,12 +75,12 @@ def make(
     # Make the dataset
     if config.use_baseline:
         transform = transforms.Compose([
-            util.ToPointCloud(),
-            util.ProjectPointCloud(uniform_norm=config.normalize),
+            utils.ToPointCloud(),
+            utils.ProjectPointCloud(uniform_norm=config.normalize),
         ]) if config.spicy else transforms.Compose([
-            util.ToPointCloud(),
-            util.ProjectPointCloud(uniform_norm=config.normalize),
-            util.ExpandChannels(channels=1),
+            utils.ToPointCloud(),
+            utils.ProjectPointCloud(uniform_norm=config.normalize),
+            utils.ExpandChannels(channels=1),
         ])
 
         dataset = MpalaTreeLiDAR(
@@ -97,7 +97,7 @@ def make(
             min_points=config.min_points,
             top_species=config.top_species,
             transform=transforms.Compose([
-                util.ToPointCloud(),
+                utils.ToPointCloud(),
             ]),
         )
         # TODO: include config for num_points, training/testing splits
