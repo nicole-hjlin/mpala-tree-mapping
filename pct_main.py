@@ -68,7 +68,10 @@ def train(args, io):
         train_true = []
         idx = 0
         total_time = 0.0
+        print('------ train loader', train_loader)
         for data, label in (train_loader):
+            data = data.float()
+            print('------------ traing data: ', data)
             data, label = data.to(device), label.to(device).squeeze()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
@@ -110,6 +113,7 @@ def train(args, io):
         test_true = []
         total_time = 0.0
         for data, label in test_loader:
+            data = data.float()
             data, label = data.to(device), label.to(device).squeeze()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
@@ -156,6 +160,7 @@ def test(args, io):
     test_pred = []
 
     for data, label in test_loader:
+        data = data.float()
         data, label = data.to(device), label.to(device).squeeze()
         data = data.permute(0, 2, 1)
         logits = model(data)
@@ -220,7 +225,7 @@ if __name__ == "__main__":
     parser.add_argument('--use_sgd', type=bool, default=True,
                         help='Use SGD')
     parser.add_argument('--lr', type=float, default=0.0001, metavar='LR',
-                        help='learning rate (default: 0.001, 0.1 if using sgd)')
+                        help='learning rate (default: 0.0001, 0.1 if using sgd)')
     parser.add_argument('--momentum', type=float, default=0.9, metavar='M',
                         help='SGD momentum (default: 0.9)')
     parser.add_argument('--no_cuda', type=bool, default=False,
