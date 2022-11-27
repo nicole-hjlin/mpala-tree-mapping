@@ -171,6 +171,12 @@ def test(args, io):
     test_pred = np.concatenate(test_pred)
     test_acc = metrics.accuracy_score(test_true, test_pred)
     avg_per_class_acc = metrics.balanced_accuracy_score(test_true, test_pred)
+
+    # Plot AUC and compare the two
+    # fpr, tpr, _ = sklearn.metrics.roc_curve(y_test,  y_pred_proba)
+    # auc = sklearn.metrics.roc_auc_score(y_test, y_pred_proba)
+    # plt.plot(fpr,tpr,label="data 1, auc="+str(auc))
+
     outstr = 'Test :: test acc: %.6f, test avg acc: %.6f' % (
         test_acc, avg_per_class_acc)
     io.cprint(outstr)

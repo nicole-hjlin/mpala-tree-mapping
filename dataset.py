@@ -78,7 +78,7 @@ class MpalaTreeLiDARToPCT(Dataset):
     def __init__(
         self,
         data: MpalaTreeLiDAR,
-        num_points: int = 1024,
+        num_points: int = 1024,  # Uniform number of points that are taken by PCT
         partition: str = 'train',
     ):
         self.data = data
