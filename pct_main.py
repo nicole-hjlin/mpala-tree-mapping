@@ -47,7 +47,7 @@ def train(args, io):
     device = torch.device("cuda:0" if args.cuda else "cpu")
 
     model = Pct(args).to(device)
-    print(str(model))
+    print('--------- model: ', str(model))
     model = nn.DataParallel(model)
 
     if args.use_sgd:
@@ -76,9 +76,11 @@ def train(args, io):
         total_time = 0.0
         for data, label in (train_loader):
             data = data.float()
+            print('---------- train data: ', data)
             data, label = data.to(device), label.to(device).squeeze()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
+            print('---------- data size: ', data.size())
             opt.zero_grad()
 
             start_time = time.time()
@@ -167,7 +169,6 @@ def train(args, io):
             preds = logits.max(dim=1)[1]
             count += batch_size
             test_loss += loss.item() * batch_size
-            print(label.cpu().numpy())
             test_true.append(label.cpu().numpy())
             test_pred.append(preds.detach().cpu().numpy())
         print('test total time is', total_time)
@@ -301,6 +302,8 @@ if __name__ == "__main__":
                         default=500, help='Minimum number of points in a tree LiDAR scan file')
     parser.add_argument('--train_split', type=int,
                         default=0.8, help='Ratio of training data to test data')
+    parser.add_argument('--output_channels', type=int,
+                        default=41, help='Number of classes')
     args = parser.parse_args()
 
     _init_(args)

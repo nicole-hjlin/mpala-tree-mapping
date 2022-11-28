@@ -36,6 +36,7 @@ class MpalaTreeLiDAR(Dataset):
             las = laspy.read(filepath)
             if len(las.classification) < min_points:
                 continue
+
             self.x.append(las)
             self.y.append(encode_label(id_to_label(id)))
 
