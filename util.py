@@ -79,10 +79,10 @@ def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2, 
 def sexy_gif(pc, path: str, **kwargs):
     imageio.mimsave(path, [
         (255*project_point_cloud(pc, xrot=xrot, **kwargs)).byte()
-        for xrot in torch.linspace(0, 360, 10)
+        for xrot in torch.linspace(0, 360, 60)
     ] + [
         (255*project_point_cloud(pc, yrot=yrot, **kwargs)).byte()
-        for yrot in torch.linspace(90, 450, 10)
+        for yrot in torch.linspace(90, 450, 60)
     ])
 
 
