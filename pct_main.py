@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader, random_split
 import sklearn.metrics as metrics
 import utils
 import wandb
+from torchmetrics import AUROC
 
 
 def _init_(args):
@@ -125,7 +126,21 @@ def train(args, io):
             'Train Acc': metrics.accuracy_score(train_true, train_pred),
             'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred),
             "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
+            # 'test_auc': AUROC(len(train.classes))(test_y_pred, train_pred)),
         }
+
+        with torch.no_grad():
+            test_y_pred = torch.Tensor([]).to(device)
+            test_y = torch.Tensor([]).to(device)
+            for x, y in train_loader:
+                x, y = x.to(device), y.to(device)
+                y_pred = model(x)
+                test_y_pred = torch.cat([test_y_pred, y_pred])
+                test_y = torch.cat([test_y, y])
+            wandb.log({
+                'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
+                'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
+            }, step=count)
 
         wandb.log(results, epoch=epoch, stage='train')
         io.cprint(outstr)
