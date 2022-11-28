@@ -46,11 +46,12 @@ def las_to_pc(las, hide_class_10: bool = False):
 def rot_m(xrot, yrot, zrot):
     return torch.tensor(euler2mat(radians(zrot), radians(yrot), radians(xrot)))
 
-def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2, darkmode=True):
+
+def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2, darkmode=True, uniform_norm=False):
     image = torch.zeros(width, width)
     pc @= rot_m(zrot, yrot, xrot)
     pc -= pc.mean(dim=0)
-    pc /= pc.norm(dim=-1).max()
+    pc /= 7 if uniform_norm else pc.norm(dim=-1).max()
 
     zorder = (-pc[:,2]).argsort()
     pc = pc[zorder,:]
@@ -78,11 +79,12 @@ def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2, 
 def sexy_gif(pc, path: str, **kwargs):
     imageio.mimsave(path, [
         (255*project_point_cloud(pc, xrot=xrot, **kwargs)).byte()
-        for xrot in torch.linspace(0, 360, 60)
+        for xrot in torch.linspace(0, 360, 10)
     ] + [
         (255*project_point_cloud(pc, yrot=yrot, **kwargs)).byte()
-        for yrot in torch.linspace(90, 450, 60)
+        for yrot in torch.linspace(90, 450, 10)
     ])
+
 
 default_views = [
     (0, 0, 0),
@@ -109,14 +111,22 @@ class ToPointCloud:
 class ProjectPointCloud:
     def __init__(
         self,
+        uniform_norm: bool,
         views: List[Tuple[float, float, float]] = default_views,
     ):
+        self.uniform_norm = uniform_norm
         self.views = views
 
     def __call__(self, x):
         proj = []
         for xrot, yrot, zrot in self.views:
-            proj.append(project_point_cloud(x, xrot=xrot, yrot=yrot, zrot=zrot))
+            proj.append(project_point_cloud(
+                x,
+                xrot=xrot,
+                yrot=yrot,
+                zrot=zrot,
+                uniform_norm=self.uniform_norm,
+            ))
         proj = torch.stack(proj)
         return proj
 

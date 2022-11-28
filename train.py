@@ -74,10 +74,10 @@ def make(
     # Make the dataset
     transform = transforms.Compose([
         util.ToPointCloud(),
-        util.ProjectPointCloud(),
+        util.ProjectPointCloud(uniform_norm=config.normalize),
     ]) if config.spicy else transforms.Compose([
         util.ToPointCloud(),
-        util.ProjectPointCloud(),
+        util.ProjectPointCloud(uniform_norm=config.normalize),
         util.ExpandChannels(channels=1),
     ])
 
