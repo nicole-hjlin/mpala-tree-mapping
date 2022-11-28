@@ -40,7 +40,7 @@ def train(args, io):
     test_loader = DataLoader(
         test, num_workers=8, batch_size=args.test_batch_size, shuffle=True, drop_last=False)
 
-    device = torch.device("cuda" if args.cuda else "cpu")
+    device = torch.device("cuda:0" if args.cuda else "cpu")
 
     model = Pct(args).to(device)
     print(str(model))
@@ -68,10 +68,8 @@ def train(args, io):
         train_true = []
         idx = 0
         total_time = 0.0
-        print('------ train loader', train_loader)
         for data, label in (train_loader):
             data = data.float()
-            print('------------ traing data: ', data)
             data, label = data.to(device), label.to(device).squeeze()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
@@ -95,6 +93,8 @@ def train(args, io):
         print('train total time is', total_time)
         train_true = np.concatenate(train_true)
         train_pred = np.concatenate(train_pred)
+        print('----- train true:', train_true)
+        print('----- train pred:', train_pred)
         outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f' % (epoch,
                                                                                  train_loss*1.0/count,
                                                                                  metrics.accuracy_score(
@@ -125,11 +125,14 @@ def train(args, io):
             preds = logits.max(dim=1)[1]
             count += batch_size
             test_loss += loss.item() * batch_size
+            print(label.cpu().numpy())
             test_true.append(label.cpu().numpy())
             test_pred.append(preds.detach().cpu().numpy())
         print('test total time is', total_time)
-        test_true = np.concatenate(test_true)
+        test_true = np.concatenate([test_true], axis=0).flatten()
         test_pred = np.concatenate(test_pred)
+        print('----- test true:', test_true)
+        print('----- test pred:', test_pred)
         test_acc = metrics.accuracy_score(test_true, test_pred)
         avg_per_class_acc = metrics.balanced_accuracy_score(
             test_true, test_pred)
