@@ -15,9 +15,10 @@ import pandas as pd
 from torch.utils.data import DataLoader, random_split
 import sklearn.metrics as metrics
 import utils
+import wandb
 
 
-def _init_():
+def _init_(args):
     if not os.path.exists('checkpoints'):
         os.makedirs('checkpoints')
     if not os.path.exists('checkpoints/'+args.exp_name):
@@ -31,6 +32,8 @@ def _init_():
               args.exp_name + '/' + 'util.py.backup')
     os.system('cp data.py checkpoints' + '/' +
               args.exp_name + '/' + 'data.py.backup')
+    wandb.login()
+    wandb.init(project=args.exp_name, config=args)
 
 
 def train(args, io):
@@ -58,6 +61,8 @@ def train(args, io):
 
     criterion = cal_loss
     best_test_acc = 0
+
+    wandb.watch(model, criterion, log='all', log_freq=10)
 
     for epoch in range(args.epochs):
         scheduler.step()
@@ -90,17 +95,39 @@ def train(args, io):
             train_pred.append(preds.detach().cpu().numpy())
             idx += 1
 
+            if idx % 8 == 0:
+                wandb.log({
+                    'epoch': epoch,
+                    'loss': loss,
+                    'train_loss': train_loss,
+                    'acc': metrics.accuracy_score(
+                        train_true, train_pred),
+                }, step=count, stage='train')
+
         print('train total time is', total_time)
         train_true = np.concatenate(train_true)
         train_pred = np.concatenate(train_pred)
+
         print('----- train true:', train_true)
         print('----- train pred:', train_pred)
-        outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f' % (epoch,
-                                                                                 train_loss*1.0/count,
-                                                                                 metrics.accuracy_score(
-                                                                                     train_true, train_pred),
-                                                                                 metrics.balanced_accuracy_score(
-                                                                                     train_true, train_pred))
+
+        # fpr, tpr, _ = metrics.roc_curve(preds, logits)
+        # outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f, fpr: %.6f, tpr: %.6f' % (epoch,
+        #                                                                                                train_loss*1.0/count,
+        #                                                                                                metrics.accuracy_score(
+        #                                                                                                    train_true, train_pred),
+        #                                                                                                metrics.balanced_accuracy_score(
+        #                                                                                                    train_true, train_pred), fpr, tpr)
+
+        results = {
+            'Epoch': epoch,
+            'Train Loss': train_loss*1.0/count,
+            'Train Acc': metrics.accuracy_score(train_true, train_pred),
+            'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred),
+            "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
+        }
+
+        wandb.log(results, epoch=epoch, stage='train')
         io.cprint(outstr)
 
         ####################
@@ -141,8 +168,16 @@ def train(args, io):
                                                                               test_acc,
                                                                               avg_per_class_acc)
         io.cprint(outstr)
+        results = {
+            'Test Loss': train_loss*1.0/count,
+            'Test Acc': metrics.accuracy_score(train_true, train_pred),
+            'Test Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred),
+            "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
+        }
+        wandb.log(results, stage='test')
         if test_acc >= best_test_acc:
             best_test_acc = test_acc
+            wandb.log({'best_test_acc': best_test_acc}, stage='test')
             torch.save(model.state_dict(),
                        'checkpoints/%s/models/model.t7' % args.exp_name)
 
@@ -217,8 +252,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Point Cloud Recognition')
     parser.add_argument('--exp_name', type=str, default='exp', metavar='N',
                         help='Name of the experiment')
-    parser.add_argument('--dataset', type=str, default='modelnet40', metavar='N',
-                        choices=['modelnet40'])
+    # parser.add_argument('--dataset', type=str, default='modelnet40', metavar='N',
+    #                     choices=['modelnet40'])
     parser.add_argument('--batch_size', type=int, default=32, metavar='batch_size',
                         help='Size of batch)')
     parser.add_argument('--test_batch_size', type=int, default=16, metavar='batch_size',
@@ -253,7 +288,7 @@ if __name__ == "__main__":
                         default=0.8, help='Ratio of training data to test data')
     args = parser.parse_args()
 
-    _init_()
+    _init_(args)
 
     io = IOStream('checkpoints/' + args.exp_name + '/run.log')
     io.cprint(str(args))
