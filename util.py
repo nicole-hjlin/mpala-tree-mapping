@@ -43,10 +43,10 @@ def las_to_pc(las, hide_class_10: bool = False):
     return pc, classes
 
 
-def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2):
-    def rot_m(xrot, yrot, zrot):
-        return torch.tensor(euler2mat(radians(zrot), radians(yrot), radians(xrot)))
+def rot_m(xrot, yrot, zrot):
+    return torch.tensor(euler2mat(radians(zrot), radians(yrot), radians(xrot)))
 
+def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2, darkmode=True):
     image = torch.zeros(width, width)
     pc @= rot_m(zrot, yrot, xrot)
     pc -= pc.mean(dim=0)
@@ -72,7 +72,7 @@ def project_point_cloud(pc, xrot=0, yrot=90, zrot=0, width=224, scale=0.5, s=2):
         except IndexError:
             continue
 
-    return image
+    return image if darkmode else 1 - image
 
 
 def sexy_gif(pc, path: str, **kwargs):

@@ -72,16 +72,21 @@ def make(
     config: Dict
 ) -> Tuple[nn.Module, DataLoader, DataLoader, nn.CrossEntropyLoss, optim.SGD]:
     # Make the dataset
+    transform = transforms.Compose([
+        util.ToPointCloud(),
+        util.ProjectPointCloud(),
+    ]) if config.spicy else transforms.Compose([
+        util.ToPointCloud(),
+        util.ProjectPointCloud(),
+        util.ExpandChannels(channels=1),
+    ])
+
     dataset = MpalaTreeLiDAR(
         dir=config.data_dir,
         labels=pd.read_csv(config.label_path),
         min_points=config.min_points,
         top_species=config.top_species,
-        transform=transforms.Compose([
-            util.ToPointCloud(),
-            util.ProjectPointCloud(),
-            util.ExpandChannels(channels=1),
-        ]),
+        transform=transform,
     )
 
     # Split train and test sets
@@ -109,6 +114,7 @@ def make(
     model = SimpleView(
         num_views=6,
         num_classes=len(dataset.classes),
+        expand_projections=not config.spicy
     )
 
     # Make the loss and optimizer

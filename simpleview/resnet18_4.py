@@ -77,6 +77,7 @@ class ResNet_4(nn.Module):
         self,
         block: Type[Union[BasicBlock, Bottleneck]],
         layers: List[int],
+        channels: int = 1,
         num_classes: int = 1000,
         zero_init_residual: bool = False,
         groups: int = 1,
@@ -100,7 +101,7 @@ class ResNet_4(nn.Module):
                             "or a 3-element tuple, got {}".format(replace_stride_with_dilation))
         self.groups = groups
         self.base_width = width_per_group
-        self.conv1 = nn.Conv2d(1, self.inplanes, kernel_size=7, stride=2, padding=3,
+        self.conv1 = nn.Conv2d(channels, self.inplanes, kernel_size=7, stride=2, padding=3,
                             bias=False)
         self.bn1 = norm_layer(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
@@ -179,9 +180,9 @@ class ResNet_4(nn.Module):
         return self._forward_impl(x)
 
 
-def resnet18_4() -> ResNet_4:
+def resnet18_4(expand_projection: bool) -> ResNet_4:
     """
     ResNet18/4: ResNet18 with 1/4 the filters
     Note: contains ~0.83M params which is close to the 0.8M params reported in paper 
     """
-    return ResNet_4(block=BasicBlock, layers=[2, 2, 2, 2])
+    return ResNet_4(block=BasicBlock, layers=[2, 2, 2, 2], channels=6 if expand_projection else 1)
