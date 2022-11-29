@@ -98,16 +98,6 @@ def train(args, io):
             train_pred.append(preds.detach().cpu().numpy())
             idx += 1
 
-            if idx % 8 == 0:
-                wandb.log({
-                    'epoch': epoch,
-                    'loss': loss,
-                    'train_loss': train_loss,
-                    'acc': metrics.accuracy_score(
-                        train_true, train_pred),
-                    'stage': 'train',
-                }, step=count)
-
         print('train total time is', total_time)
         train_true = np.concatenate(train_true)
         train_pred = np.concatenate(train_pred)
@@ -127,8 +117,7 @@ def train(args, io):
         results = {
             'epoch': epoch,
             'train loss': train_loss*1.0/count,
-            'train acc': metrics.accuracy_score(train_true, train_pred),
-            'stage': 'train',
+            'train acc': metrics.accuracy_score(train_true, train_pred)
             # 'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred)
             # "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
             # 'test_auc': AUROC(len(train.classes))(test_y_pred, train_pred)),
@@ -178,16 +167,17 @@ def train(args, io):
             test_y_pred = torch.Tensor([]).to(device)
             test_y = torch.Tensor([]).to(device)
             for x, y in test_loader:
+                x = x.float()
                 x, y = x.to(device), y.to(device)
+                x = x.permute(0, 2, 1)
                 y_pred = model(x)
                 test_y_pred = torch.cat([test_y_pred, y_pred])
                 test_y = torch.cat([test_y, y])
             wandb.log({
                 'epoch': epoch,
-                'test_auc': AUROC(len(test.classes))(test_y_pred, test_y.int()),
+                'test_auc': AUROC(len(test.dataset.classes))(test_y_pred, test_y.int()),
                 'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
-                'test_loss': test_loss*1.0/count,
-                'stage': 'test',
+                'test_loss': test_loss*1.0/count
             })
 
         # results = {
