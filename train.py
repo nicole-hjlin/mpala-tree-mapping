@@ -91,6 +91,7 @@ def make(
             transform=transform,
         )
     else:
+        # Currently deprecated
         dataset = MpalaTreeLiDAR(
             dir=config.data_dir,
             labels=pd.read_csv(config.label_path),
