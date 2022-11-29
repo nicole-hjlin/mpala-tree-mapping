@@ -244,6 +244,7 @@ def load_tree_lidar_data(args):
         dir=args.data_dir,
         labels=pd.read_csv(args.label_path),
         min_points=args.min_points,
+        top_species=args.top_species,
         transform=transforms.Compose([
             utils.ToPointCloud(),
         ]),
