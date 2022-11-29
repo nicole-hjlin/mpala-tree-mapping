@@ -76,11 +76,11 @@ def train(args, io):
         total_time = 0.0
         for data, label in (train_loader):
             data = data.float()
-            #print('---------- train data: ', data)
+            # print('---------- train data: ', data)
             data, label = data.to(device), label.to(device).squeeze()
             data = data.permute(0, 2, 1)
             batch_size = data.size()[0]
-            #print('---------- data size: ', data.size())
+            # print('---------- data size: ', data.size())
             opt.zero_grad()
 
             start_time = time.time()
@@ -115,7 +115,7 @@ def train(args, io):
         print('----- train true:', train_true)
         print('----- train pred:', train_pred)
 
-        #fpr, tpr, _ = metrics.roc_curve(preds, logits)
+        # fpr, tpr, _ = metrics.roc_curve(preds, logits)
         outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f' % (epoch,
                                                                                  train_loss*1.0/count,
                                                                                  metrics.accuracy_score(
@@ -124,23 +124,11 @@ def train(args, io):
                                                                                      train_true, train_pred))
         io.cprint(outstr)
 
-        with torch.no_grad():
-            test_y_pred = torch.Tensor([]).to(device)
-            test_y = torch.Tensor([]).to(device)
-            for x, y in train_loader:
-                x, y = x.to(device), y.to(device)
-                y_pred = model(x)
-                test_y_pred = torch.cat([test_y_pred, y_pred])
-                test_y = torch.cat([test_y, y])
-            wandb.log({
-                'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
-                'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
-            }, step=count)
-
         results = {
-            'Epoch': epoch,
-            'Train Loss': train_loss*1.0/count,
-            'Train Acc': metrics.accuracy_score(train_true, train_pred)
+            'epoch': epoch,
+            'train loss': train_loss*1.0/count,
+            'train acc': metrics.accuracy_score(train_true, train_pred),
+            'stage': 'train',
             # 'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred)
             # "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
             # 'test_auc': AUROC(len(train.classes))(test_y_pred, train_pred)),
@@ -186,14 +174,30 @@ def train(args, io):
                                                                               avg_per_class_acc)
         io.cprint(outstr)
 
-        results = {
-            'Test Loss': test_loss*1.0/count,
-            'Test Acc': test_acc,
-            'Test Avg Acc': avg_per_class_acc,
-            # "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
-        }
+        with torch.no_grad():
+            test_y_pred = torch.Tensor([]).to(device)
+            test_y = torch.Tensor([]).to(device)
+            for x, y in train_loader:
+                x, y = x.to(device), y.to(device)
+                y_pred = model(x)
+                test_y_pred = torch.cat([test_y_pred, y_pred])
+                test_y = torch.cat([test_y, y])
+            wandb.log({
+                'epoch': epoch,
+                'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
+                'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
+                'test_loss': test_loss*1.0/count,
+                'stage': 'test',
+            })
 
-        wandb.log(results)
+        # results = {
+        #     'Test Loss': test_loss*1.0/count,
+        #     'Test Acc': test_acc,
+        #     'Test Avg Acc': avg_per_class_acc,
+        #     "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
+        # }
+
+        # wandb.log(results)
 
         if test_acc >= best_test_acc:
             best_test_acc = test_acc
