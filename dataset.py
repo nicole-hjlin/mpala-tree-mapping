@@ -74,6 +74,7 @@ class MpalaTreeLiDARToPCT(Dataset):
         self.data = data
         self.num_points = num_points
         self.partition = partition
+        self.classes = data.classes
 
     def __getitem__(self, item):
         x, y = self.data.__getitem__(item)
