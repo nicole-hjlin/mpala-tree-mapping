@@ -98,14 +98,15 @@ def train(args, io):
             train_pred.append(preds.detach().cpu().numpy())
             idx += 1
 
-            # if idx % 8 == 0:
-            #     wandb.log({
-            #         'epoch': epoch,
-            #         'loss': loss,
-            #         'train_loss': train_loss,
-            #         'acc': metrics.accuracy_score(
-            #             train_true, train_pred),
-            #     }, step=count, stage='train')
+            if idx % 8 == 0:
+                wandb.log({
+                    'epoch': epoch,
+                    'loss': loss,
+                    'train_loss': train_loss,
+                    'acc': metrics.accuracy_score(
+                        train_true, train_pred),
+                    'stage': 'train',
+                }, step=count)
 
         print('train total time is', total_time)
         train_true = np.concatenate(train_true)
@@ -116,37 +117,36 @@ def train(args, io):
 
         #fpr, tpr, _ = metrics.roc_curve(preds, logits)
         outstr = 'Train %d, loss: %.6f, train acc: %.6f, train avg acc: %.6f' % (epoch,
-                                                                               train_loss*1.0/count,
-                                                                               metrics.accuracy_score(
-                                                                                   train_true, train_pred),
-                                                                               metrics.balanced_accuracy_score(
-                                                                                   train_true, train_pred))
+                                                                                 train_loss*1.0/count,
+                                                                                 metrics.accuracy_score(
+                                                                                     train_true, train_pred),
+                                                                                 metrics.balanced_accuracy_score(
+                                                                                     train_true, train_pred))
         io.cprint(outstr)
 
-        # with torch.no_grad():
-        #     test_y_pred = torch.Tensor([]).to(device)
-        #     test_y = torch.Tensor([]).to(device)
-        #     for x, y in train_loader:
-        #         x, y = x.to(device), y.to(device)
-        #         y_pred = model(x)
-        #         test_y_pred = torch.cat([test_y_pred, y_pred])
-        #         test_y = torch.cat([test_y, y])
-        #     wandb.log({
-        #         'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
-        #         'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
-        #     }, step=count)
+        with torch.no_grad():
+            test_y_pred = torch.Tensor([]).to(device)
+            test_y = torch.Tensor([]).to(device)
+            for x, y in train_loader:
+                x, y = x.to(device), y.to(device)
+                y_pred = model(x)
+                test_y_pred = torch.cat([test_y_pred, y_pred])
+                test_y = torch.cat([test_y, y])
+            wandb.log({
+                'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
+                'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
+            }, step=count)
 
         results = {
             'Epoch': epoch,
             'Train Loss': train_loss*1.0/count,
             'Train Acc': metrics.accuracy_score(train_true, train_pred)
-            #'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred)
+            # 'Train Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred)
             # "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
             # 'test_auc': AUROC(len(train.classes))(test_y_pred, train_pred)),
         }
 
         wandb.log(results)
-        
 
         ####################
         # Test
@@ -185,14 +185,16 @@ def train(args, io):
                                                                               test_acc,
                                                                               avg_per_class_acc)
         io.cprint(outstr)
-        
+
         results = {
             'Test Loss': test_loss*1.0/count,
-            'Test Acc': test_acc
-            #'Test Avg Acc': metrics.balanced_accuracy_score(train_true, train_pred)
+            'Test Acc': test_acc,
+            'Test Avg Acc': avg_per_class_acc,
             # "pr": wandb.plot.pr_curve(train_true, train_pred, labels=None, classes_to_plot=None)
         }
+
         wandb.log(results)
+
         if test_acc >= best_test_acc:
             best_test_acc = test_acc
             wandb.log({'best_test_acc': best_test_acc})
