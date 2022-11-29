@@ -303,6 +303,8 @@ if __name__ == "__main__":
                         default=0.8, help='Ratio of training data to test data')
     parser.add_argument('--output_channels', type=int,
                         default=41, help='Number of classes')
+    parser.add_argument('--top_species', type=int, help='')
+
     args = parser.parse_args()
 
     _init_(args)
