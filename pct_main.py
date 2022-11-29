@@ -177,14 +177,14 @@ def train(args, io):
         with torch.no_grad():
             test_y_pred = torch.Tensor([]).to(device)
             test_y = torch.Tensor([]).to(device)
-            for x, y in train_loader:
+            for x, y in test_loader:
                 x, y = x.to(device), y.to(device)
                 y_pred = model(x)
                 test_y_pred = torch.cat([test_y_pred, y_pred])
                 test_y = torch.cat([test_y, y])
             wandb.log({
                 'epoch': epoch,
-                'test_auc': AUROC(len(train.classes))(test_y_pred, test_y.int()),
+                'test_auc': AUROC(len(test.classes))(test_y_pred, test_y.int()),
                 'test_acc': (test_y_pred.argmax(-1) == test_y).float().mean(),
                 'test_loss': test_loss*1.0/count,
                 'stage': 'test',
