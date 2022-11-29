@@ -12,5 +12,5 @@ set -x
 module load Anaconda3/2020.11
 module load gcc/12.1.0-fasrc01
 
-# vanilla baseline with restnet
-python3 -m main --name baseline_vanilla --min_points 1000 --learning_rate 1e-4 --epochs 10 --batch_size 32 --data_dir ../data/MpalaForestGEO_LasClippedtoTreePolygons --label_path labels.csv --top_species 5
+# baseline with same tree same channel
+python3 -m main --name baseline_channel --min_points 1000 --learning_rate 1e-4 --epochs 10 --batch_size 32 --data_dir ../data/MpalaForestGEO_LasClippedtoTreePolygons --label_path labels.csv --top_species 5 --spicy
