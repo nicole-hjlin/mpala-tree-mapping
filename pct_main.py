@@ -150,7 +150,7 @@ def train(args, io):
             test_true.append(label.cpu().numpy())
             test_pred.append(preds.detach().cpu().numpy())
         print('test total time is', total_time)
-        test_true = np.concatenate([test_true], axis=0).flatten()
+        test_true = np.concatenate(test_true)
         test_pred = np.concatenate(test_pred)
         print('----- test true:', test_true)
         print('----- test pred:', test_pred)
