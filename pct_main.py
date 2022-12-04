@@ -16,8 +16,8 @@ from torch.utils.data import DataLoader, random_split
 import sklearn.metrics as metrics
 import utils
 import wandb
+import pickle
 from torchmetrics import AUROC
-
 
 def _init_(args):
     if not os.path.exists('checkpoints'):
@@ -194,6 +194,14 @@ def train(args, io):
             wandb.log({'best_test_acc': best_test_acc})
             torch.save(model.state_dict(),
                        'checkpoints/%s/models/model.t7' % args.exp_name)
+
+        if epoch == args.nepoch - 1:
+            current_path = os.path.abspath(__file__)
+            with open(os.path.join(current_path, 'pct_preds.pickle'), 'wb') as f:
+                pickle.dump(test_pred, f, protocol=pickle.HIGHEST_PROTOCOL)
+
+            with open(os.path.join(current_path, 'labels.pickle'), 'wb') as f:
+                pickle.dump(test_true, f, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def test(args, io):
