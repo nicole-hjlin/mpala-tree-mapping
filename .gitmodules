@@ -1,0 +1,3 @@
+[submodule "PCT_Pytorch"]
+	path = PCT_Pytorch
+	url = https://github.com/Strawberry-Eat-Mango/PCT_Pytorch.git
