@@ -195,8 +195,8 @@ def train(args, io):
             torch.save(model.state_dict(),
                        'checkpoints/%s/models/model.t7' % args.exp_name)
 
-        if epoch == args.nepoch - 1:
-            current_path = os.path.abspath(__file__)
+        if epoch == args.epochs - 1:
+            current_path = os.getcwd()
             with open(os.path.join(current_path, 'pct_preds.pickle'), 'wb') as f:
                 pickle.dump(test_pred, f, protocol=pickle.HIGHEST_PROTOCOL)
 
