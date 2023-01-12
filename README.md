@@ -11,14 +11,11 @@ Mapping tree species in Mpala with airborne LiDAR images for CS 288 Class Projec
 Reliable large-scale data on the state of forests is crucial for monitoring ecosystem health, carbon stock, and the impact of climate change. Current knowledge of tree species distribution relies heavily on manual data collection in the field, which often takes years to complete, resulting in limited datasets that cover only a small subset of the world’s forests. Recent works show that state-of-the-art deep learning models using Light Detection and Ranging (LiDAR) images enable accurate and scalable classification of tree species in various ecosystems. While LiDAR images contain rich 3-Dimensional (3D) information, most previous works flatten the 3D images into 2D projections in order to use Convolutional Neural Networks (CNNs). This paper offers three significant contributions: 1) we apply the deep learning framework for tree classification in tropical savannas; 2) we use Airborne LiDAR images, which have a lower resolution but greater scalability than Terrestrial LiDAR images used in most previous works; 3) we introduce the approach of directly feeding 3D point cloud images into a vision transformer model (PCTreeS). Our results show that the PCTreeS approach outperforms current CNN baselines with 2D projections in AUC (0.81), overall accuracy (0.72), and training time (~45 mins). This paper also motivates further LiDAR image collection and validation for accurate large-scale automatic classification of tree species.
 
 ### Models
-**Simple View**
-Simple View is our implementation of the baseline method for tree classification, which involves taking 6 orthogonal projections for 2D Image Classification, as specified in our paper.
+**Simple View** is our implementation of the baseline method for tree classification, which involves taking 6 orthogonal projections for 2D Image Classification, as specified in our paper.
 
-**Point Cloud Transformer**
-Point Cloud Transformer is a novel method for 3D Image Classification that we leverage for improved image classification. 
+**Point Cloud Transformer** is a novel method for 3D Image Classification that we leverage for improved image classification. 
 
-**PCTreeS**
-PCTreeS is our adaptation of PCT for tree classification tasks, as introduced in our paper. It leverages PCT's Pytorch implementation and is adapted for our Mpala LiDAR dataset, acquired through Dr. Andrew Davies' Lab at Harvard University.
+**PCTreeS** is our adaptation of PCT for tree classification tasks, as introduced in our paper. It leverages PCT's Pytorch implementation and is adapted for our Mpala LiDAR dataset, acquired through Dr. Andrew Davies' Lab at Harvard University.
 
 ### Misc
 GIFs and dataset code
