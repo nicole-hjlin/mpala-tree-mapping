@@ -19,8 +19,8 @@ PCTreeS
 GIFs and dataset code
 
 ## Installation
-1. Clone repo
-2. Install requirements (from requirements.txt)
+1. Clone repo: `gh repo clone nicole-hjlin/mpala-tree-mapping`
+2. Install requirements: `pip install -r requirements.txt`
 3. Git submodule sync
 4. Install PCT
 5. Run model:
