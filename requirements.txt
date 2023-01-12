@@ -1,6 +1,7 @@
 torch
 torchvision
 torchmetrics
+imageio
 ipykernel
 pillow
 laspy
