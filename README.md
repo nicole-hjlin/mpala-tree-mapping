@@ -8,7 +8,7 @@ Mapping tree species in Mpala with airborne LiDAR images for CS 288 Class Projec
 
 ## About
 ### Abstract/Project Goal
-Reliable large-scale data on the state of forests is crucial for monitoring ecosystem health, carbon stock, and the impact of climate change. Current knowledge of tree species distribution relies heavily on manual data collection in the field, which often takes years to complete, resulting in limited datasets that cover only a small subset of the world’s forests. Recent works show that state-of-the-art deep learning models using Light Detection and Ranging (LiDAR) images enable accurate and scalable classification of tree species in various ecosystems. While LiDAR images contain rich 3-Dimensional (3D) information, most previous works flatten the 3D images into 2D projections in order to use Convolutional Neural Networks (CNNs). This paper offers three significant contributions: 1) we apply the deep learning framework for tree classification in tropical savannas; 2) we use Airborne LiDAR images, which have a lower resolution but greater scalability than Terrestrial LiDAR images used in most previous works; 3) we introduce the approach of directly feeding 3D point cloud images into a vision transformer model (PCTreeS). Our results show that the PCTreeS approach outperforms current CNN baselines with 2D projections in AUC (0.81), overall accuracy (0.72), and training time ($sim$ 45 mins). This paper also motivates further LiDAR image collection and validation for accurate large-scale automatic classification of tree species.
+Reliable large-scale data on the state of forests is crucial for monitoring ecosystem health, carbon stock, and the impact of climate change. Current knowledge of tree species distribution relies heavily on manual data collection in the field, which often takes years to complete, resulting in limited datasets that cover only a small subset of the world’s forests. Recent works show that state-of-the-art deep learning models using Light Detection and Ranging (LiDAR) images enable accurate and scalable classification of tree species in various ecosystems. While LiDAR images contain rich 3-Dimensional (3D) information, most previous works flatten the 3D images into 2D projections in order to use Convolutional Neural Networks (CNNs). This paper offers three significant contributions: 1) we apply the deep learning framework for tree classification in tropical savannas; 2) we use Airborne LiDAR images, which have a lower resolution but greater scalability than Terrestrial LiDAR images used in most previous works; 3) we introduce the approach of directly feeding 3D point cloud images into a vision transformer model (PCTreeS). Our results show that the PCTreeS approach outperforms current CNN baselines with 2D projections in AUC (0.81), overall accuracy (0.72), and training time (~45 mins). This paper also motivates further LiDAR image collection and validation for accurate large-scale automatic classification of tree species.
 
 ### Models
 Simple View
@@ -21,8 +21,8 @@ GIFs and dataset code
 ## Installation
 1. Clone repo: `gh repo clone nicole-hjlin/mpala-tree-mapping`
 2. Install requirements: `pip install -r requirements.txt`
-3. Git submodule sync
-4. Install PCT
+3. Sync Git submodules to clone PCT repository locally: `git submodule sync`
+4. Install PCT and required dependencies by following PCT_Pytorch repo instructions. See https://github.com/Strawberry-Eat-Mango/PCT_Pytorch/blob/main/README.md.
 5. Run model:
 ```
 $ python main.py --help
