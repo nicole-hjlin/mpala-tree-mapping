@@ -14,6 +14,7 @@ Reliable large-scale data on the state of forests is crucial for monitoring ecos
 Simple View
 PCT
 PCTreeS
+
 ### Misc
 GIFs and dataset code
 
@@ -58,7 +59,3 @@ options:
 Hongjin Lin, Matthew Nazari, Derek Zheng
 
 Harvard University
-
-## References and Misc.
-
-< Link Paper > 
